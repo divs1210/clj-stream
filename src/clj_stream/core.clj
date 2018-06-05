@@ -1,9 +1,8 @@
 (ns clj-stream.core
   "Clojure wrapper over Java streams using StreamEx (https://github.com/amaembo/streamex)"
-  (:refer-clojure :exclude [count filter first map reduce seq])
+  (:refer-clojure :exclude [count filter first map reduce])
   (:require [clojure.core :as clj])
-  (:import [clojure.lang Seqable]
-           [java.util Optional]
+  (:import [java.util Optional]
            [java.util.concurrent ForkJoinPool ForkJoinTask]
            [java.util.function Consumer Predicate UnaryOperator BinaryOperator]
            [java.util.stream Stream]
@@ -57,13 +56,13 @@
   [coll]
   (if (stream? coll)
     coll
-    (-> (clj/seq coll)
+    (-> (seq coll)
         .stream
         StreamEx/of
         first)))
 
-(defn seq
-  "Returns a collection from the given stream."
+(defn seq!
+  "Returns a Clojure `seq` from the given stream."
   [coll]
   (-> (stream coll)
       .iterator
@@ -73,31 +72,42 @@
 ;; Stream Operations
 ;; =================
 (defn first
-  "Returns the first item in the stream, or nil."
+  "Returns the first item in the stream, or nil.
+  Calls `stream` on its argument."
   [coll]
   (-> (stream coll)
       .findFirst
       <-optional))
 
 (defn count
-  "Like `clj/count`, but for streams."
+  "Returns the number of items in the stream.
+  Calls `stream` on its argument."
   [coll]
   (.count (stream coll)))
 
 (defn map
-  "Like `clj/map`, but for streams."
+  "Like Clojure `map`, but for streams.
+  Calls `stream` on its argument.
+
+  NOTE: Takes the stream as its first argument!"
   [coll f]
   (.map (stream coll)
         (unary-op f)))
 
 (defn ^Stream filter
-  "Like `clj/filter`, but for streams."
+  "Like Clojure `filter`, but for streams.
+  Calls `stream` on its argument.
+
+  NOTE: Takes the stream as its first argument!"
   [coll f]
   (.filter (stream coll)
            (predicate f)))
 
 (defn reduce
-  "Like `clj/reduce`, but for streams."
+  "Like Clojure `reduce`, but for streams.
+  Calls `stream` on its argument.
+
+  NOTE: Takes the stream as its first argument!"
   ([coll f]
    (-> (stream coll)
        (.reduce (binary-op f))
@@ -108,8 +118,10 @@
             (binary-op f))))
 
 (defn foreach
-  "Like `clj/map`, but for side-effects on streams.
-  Returns nil."
+  "Like Clojure `map`, but for side-effects on streams.
+  Calls `stream` on its argument. Returns nil.
+
+  NOTE: Takes the stream as its first argument!"
   ([coll f]
    (foreach coll f false))
   ([coll f ordered?]

@@ -17,6 +17,14 @@
                (filter even?)
                (map #(Math/sqrt %))
                (reduce +)))
+
+         (bench
+          "Clojure transducers:"
+          (transduce (comp (filter even?)
+                           (map #(Math/sqrt %)))
+                     +
+                     (range 1000000)))
+
          (bench
           "StreamEx streams:"
           (-> (range 1000000)

@@ -13,6 +13,14 @@ From `clj-stream.core-test`:
                (filter even?)
                (map #(Math/sqrt %))
                (reduce +)))
+
+         (bench
+          "Clojure transducers:"
+          (transduce (comp (filter even?)
+                           (map #(Math/sqrt %)))
+                     +
+                     (range 1000000)))
+
          (bench
           "StreamEx streams:"
           (-> (range 1000000)
@@ -24,10 +32,14 @@ From `clj-stream.core-test`:
 Running `lein test` shows:
 ```
 Clojure seqs:
-"Elapsed time: 5257.114293 msecs"
+"Elapsed time: 6151.199012 msecs"
+Clojure transducers:
+"Elapsed time: 3928.352095 msecs"
 StreamEx streams:
-"Elapsed time: 4272.70208 msecs"
+"Elapsed time: 5092.265878 msecs"
 ```
+
+So... faster than seqs, but slower than transducers. Hmm.
 
 ## License
 

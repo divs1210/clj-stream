@@ -1,4 +1,4 @@
-# clj-stream
+# streamex-benchmark
 
 Clojure wrapper over Java streams using StreamEx (https://github.com/amaembo/streamex)
 
